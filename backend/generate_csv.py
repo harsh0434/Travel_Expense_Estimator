@@ -1,20 +1,29 @@
-import pandas as pd
+import csv
 
-# Define sample data
-data = {
-    "destination_type": ["beach", "mountain", "city", "desert"],
-    "travel_mode": ["flight", "train", "bus", "car"],
-    "accommodation": ["hotel", "hostel", "apartment", "hotel"],
-    "num_people": [2, 3, 4, 2],
-    "num_days": [5, 7, 4, 3],
-    "total_expense": [5000, 7000, 4000, 3000],
-}
+# Define the data
+data = [
+    ["destination", "num_people", "num_days", "transport_mode", "estimated_cost"],
+    ["Goa", 2, 5, "Flight", 15000],
+    ["Mumbai", 3, 4, "Train", 7000],
+    ["Delhi", 1, 3, "Bus", 3500],
+    ["Bangalore", 4, 6, "Flight", 18000],
+    ["Chennai", 2, 3, "Train", 8000],
+    ["Kolkata", 5, 7, "Bus", 6000],
+    ["Hyderabad", 3, 5, "Flight", 12000],
+    ["Jaipur", 2, 4, "Bus", 5000],
+    ["Pune", 1, 2, "Train", 4000],
+    ["Manali", 3, 6, "Bus", 9500],
+    ["Shimla", 2, 5, "Train", 8500],
+    ["Ooty", 4, 4, "Flight", 16000],
+    ["Kerala", 5, 7, "Flight", 22000],
+    ["Ahmedabad", 3, 5, "Bus", 7800],
+    ["Varanasi", 2, 3, "Train", 5000],
+    ["Ladakh", 2, 6, "Flight", 25000]
+]
 
-# Create a DataFrame
-df = pd.DataFrame(data)
+# Create and save the CSV file
+with open("travel_expenses.csv", "w", newline="") as file:
+    writer = csv.writer(file)
+    writer.writerows(data)
 
-# Save as CSV
-csv_path = "database/travel_expense_dataset.csv"  # ✅ Corrected path
-df.to_csv(csv_path, index=False)
-
-print(f"✅ CSV file created successfully at {csv_path}")
+print("CSV file 'travel_expenses.csv' created successfully!")

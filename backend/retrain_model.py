@@ -1,37 +1,38 @@
 import pandas as pd
-import joblib
-from sklearn.ensemble import RandomForestRegressor
+import pickle
+import numpy as np
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-import os
+from sklearn.linear_model import LinearRegression
 
-# Define paths
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Backend folder
-CSV_PATH = os.path.join(BASE_DIR, "database", "travel_expense_dataset.csv")  # Correct CSV path
-MODEL_PATH = os.path.join(BASE_DIR, "models", "travel_expense_model.pkl")  # Save model in 'models' folder
-ENCODER_PATH = os.path.join(BASE_DIR, "models", "encoders.pkl")  # Save encoders in 'models' folder
+# Load the dataset
+df = pd.read_csv(r"C:\Users\harsh\OneDrive\Desktop\Travel-Expense-Estimator\backend\database\travel_expenses.csv")
 
-# Load dataset
-df = pd.read_csv(CSV_PATH)
+# Encode categorical columns
+label_encoders = {}
 
-# Encode categorical variables
-le_dest = LabelEncoder()
-le_travel = LabelEncoder()
-le_accom = LabelEncoder()
+for col in ["destination", "transport_mode"]:
+    le = LabelEncoder()
+    df[col] = le.fit_transform(df[col])
 
-df["destination_type"] = le_dest.fit_transform(df["destination_type"])
-df["travel_mode"] = le_travel.fit_transform(df["travel_mode"])
-df["accommodation"] = le_accom.fit_transform(df["accommodation"])
+    # Ensure the label encoder can handle unknown values
+    le.classes_ = np.append(le.classes_, "unknown")
 
-# Define features and target
-X = df.drop(columns=["total_expense"])
-y = df["total_expense"]
+    label_encoders[col] = le  # Store label encoders for future use
 
-# Train a new model with the current scikit-learn version
-model = RandomForestRegressor(n_estimators=100, random_state=42)
-model.fit(X, y)
+# Define features and target variable
+X = df.drop(columns=["estimated_cost"])  # Independent variables
+y = df["estimated_cost"]  # Dependent variable
 
-# Save the new model and encoders
-joblib.dump(model, MODEL_PATH)
-joblib.dump({"dest": le_dest, "travel": le_travel, "accom": le_accom}, ENCODER_PATH)
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-print("✅ Model retrained and saved successfully at:", MODEL_PATH)
+# Train model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Save model and label encoders
+with open("travel_expense_model.pkl", "wb") as file:
+    pickle.dump({"model": model, "label_encoders": label_encoders}, file)
+
+print("Model trained and saved successfully as travel_expense_model.pkl")

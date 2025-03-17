@@ -1,47 +1,68 @@
+import os
+import pickle
+import numpy as np
+import pandas as pd
 from django.shortcuts import render
 from django.http import JsonResponse
-import requests
 
-# ✅ Add a home page view
+# ✅ Set up the model path
+MODEL_PATH = r"C:\Users\harsh\OneDrive\Desktop\Travel-Expense-Estimator\backend\models\travel_expense_model.pkl"
+
+# ✅ Load the trained ML model (with error handling)
+if os.path.exists(MODEL_PATH):
+    with open(MODEL_PATH, "rb") as file:
+        data = pickle.load(file)
+        model = data["model"]
+        label_encoders = data["label_encoders"]
+else:
+    raise FileNotFoundError(f"Model file not found: {MODEL_PATH}")
+
+# ✅ Home page view
 def home(request):
     return render(request, "index.html")  # Ensure index.html exists
 
-# ✅ Improved estimate function with error handling
+# ✅ Function to predict expenses (UPDATED to handle unseen labels)
+def predict_expense(destination, num_people, num_days, transport_mode):
+    try:
+        # Function to handle unseen labels
+        def encode_with_fallback(label_encoder, value):
+            if value in label_encoder.classes_:
+                return label_encoder.transform([value])[0]
+            else:
+                return label_encoder.transform(["unknown"])[0]  # Assign to "unknown"
+
+        # Convert categorical inputs using label encoders (handling unseen labels)
+        destination_encoded = encode_with_fallback(label_encoders["destination"], destination)
+        transport_mode_encoded = encode_with_fallback(label_encoders["transport_mode"], transport_mode)
+
+        # Create DataFrame for prediction
+        input_data = pd.DataFrame([[destination_encoded, num_people, num_days, transport_mode_encoded]],
+                                  columns=["destination", "num_people", "num_days", "transport_mode"])
+
+        # Predict estimated cost
+        estimated_cost = model.predict(input_data)[0]
+        return round(estimated_cost, 2)
+
+    except Exception as e:
+        return f"Error in prediction: {str(e)}"
+
+# ✅ API View for estimating travel expenses
 def estimate(request):
     if request.method == "POST":
-        destination = request.POST.get("destination", "")
-        travel_mode = request.POST.get("travel_mode", "")
-        num_people = request.POST.get("num_people", "")
-        num_days = request.POST.get("num_days", "")
+        try:
+            # Extract user inputs
+            destination = request.POST.get("destination")
+            num_people = int(request.POST.get("num_people"))
+            num_days = int(request.POST.get("num_days"))
+            transport_mode = request.POST.get("transport_mode")
 
-        payload = {
-            "destination": destination,
-            "travel_mode": travel_mode,
-            "num_people": num_people,
-            "num_days": num_days
-        }
+            # Predict cost
+            estimated_cost = predict_expense(destination, num_people, num_days, transport_mode)
 
-        response = requests.post("http://127.0.0.1:5000/estimate", json=payload)
+            # Return JSON response
+            return JsonResponse({"estimated_cost": estimated_cost})
 
-        print("Response Status Code:", response.status_code)
-        print("Response JSON:", response.text)  # Print full response
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
 
-        if response.status_code == 200:
-            estimated_cost = response.json().get("estimated_cost", "N/A")
-            return render(request, "index.html", {
-                "estimated_cost": estimated_cost,
-                "destination": destination,
-                "travel_mode": travel_mode,
-                "num_people": num_people,
-                "num_days": num_days
-            })
-        else:
-            return render(request, "index.html", {
-                "error": f"Error in estimation. Server responded with: {response.text}",
-                "destination": destination,
-                "travel_mode": travel_mode,
-                "num_people": num_people,
-                "num_days": num_days
-            })
-
-    return render(request, "index.html")
+    return JsonResponse({"error": "Invalid request method"}, status=405)
