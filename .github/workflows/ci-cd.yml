@@ -1,0 +1,59 @@
+name: CI/CD Pipeline for Travel Expense Estimator
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install Backend Dependencies
+        run: |
+          pip install -r backend/requirements.txt
+
+      - name: Run Django Tests
+        run: |
+          python backend/manage.py test
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+
+      - name: Install Frontend Dependencies
+        run: |
+          npm install --prefix frontend
+
+      - name: Run Frontend Tests
+        run: |
+          npm test --prefix frontend
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Server
+        env:
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          DEPLOY_DIR: "/home/your_user/Travel-Expense-Estimator"
+        run: |
+          echo "$SSH_KEY" > private_key && chmod 600 private_key
+          ssh -i private_key your_user@$SERVER_IP "
+            cd $DEPLOY_DIR &&
+            git pull origin main &&
+            docker-compose up --build -d
+          "
