@@ -1,1 +1,2 @@
 # Travel_Expense_Estimator
+This is a basic website which provide you the estimate cost for the travel by entering data like travel destination, number of days and number of people. It will provide the estimate cost by the model which is used in the project. The dataset for this model is created and it is trained according to the dataset made. For initial stage it can only provide the cost for the places present in india.
