@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destinations - Incredible India Travel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/destinations.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/">Incredible India Travel</a>
+        </div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/calculator">Cost Calculator</a>
+            <a href="/destinations" class="active">Destinations</a>
+            <a href="/profile" id="profileLink">Profile</a>
+            <button id="logoutBtn" class="btn-logout">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Destinations Header -->
+    <section class="destinations-header">
+        <h1>Explore India's Destinations</h1>
+        <p>Discover the diverse beauty and culture of India</p>
+    </section>
+
+    <!-- Search and Filter Section -->
+    <section class="search-section">
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search destinations...">
+            <select id="regionFilter">
+                <option value="">All Regions</option>
+                <option value="north">North India</option>
+                <option value="south">South India</option>
+                <option value="east">East India</option>
+                <option value="west">West India</option>
+                <option value="central">Central India</option>
+                <option value="northeast">Northeast India</option>
+            </select>
+        </div>
+    </section>
+
+    <!-- Destinations Grid -->
+    <section class="destinations-grid">
+        <!-- North India -->
+        <div class="destination-card" data-region="north">
+            <img src="https://images.unsplash.com/photo-1564507592333-c60657eea523?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Taj Mahal">
+            <div class="destination-info">
+                <h3>Taj Mahal</h3>
+                <p>Agra, Uttar Pradesh</p>
+                <div class="destination-details">
+                    <span><i class="fas fa-clock"></i> Best Time: Oct-Mar</span>
+                    <span><i class="fas fa-mountain"></i> Famous for: Architecture</span>
+                </div>
+                <a href="/calculator?destination=agra" class="btn-secondary">Plan Visit</a>
+            </div>
+        </div>
+
+        <div class="destination-card" data-region="north">
+            <img src="https://images.unsplash.com/photo-1514222134-b57cbb8ce073?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Jaipur">
+            <div class="destination-info">
+                <h3>Jaipur</h3>
+                <p>Rajasthan</p>
+                <div class="destination-details">
+                    <span><i class="fas fa-clock"></i> Best Time: Oct-Mar</span>
+                    <span><i class="fas fa-fort"></i> Famous for: Forts & Culture</span>
+                </div>
+                <a href="/calculator?destination=jaipur" class="btn-secondary">Plan Visit</a>
+            </div>
+        </div>
+
+        <!-- South India -->
+        <div class="destination-card" data-region="south">
+            <img src="https://images.unsplash.com/photo-1477587458883-47145ed94245?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Goa">
+            <div class="destination-info">
+                <h3>Goa</h3>
+                <p>Beach Paradise</p>
+                <div class="destination-details">
+                    <span><i class="fas fa-clock"></i> Best Time: Oct-Mar</span>
+                    <span><i class="fas fa-umbrella-beach"></i> Famous for: Beaches</span>
+                </div>
+                <a href="/calculator?destination=goa" class="btn-secondary">Plan Visit</a>
+            </div>
+        </div>
+
+        <div class="destination-card" data-region="south">
+            <img src="https://images.unsplash.com/photo-1514222134-b57cbb8ce073?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Varanasi">
+            <div class="destination-info">
+                <h3>Varanasi</h3>
+                <p>Spiritual Capital</p>
+                <div class="destination-details">
+                    <span><i class="fas fa-clock"></i> Best Time: Oct-Mar</span>
+                    <span><i class="fas fa-om"></i> Famous for: Spirituality</span>
+                </div>
+                <a href="/calculator?destination=varanasi" class="btn-secondary">Plan Visit</a>
+            </div>
+        </div>
+
+        <!-- East India -->
+        <div class="destination-card" data-region="east">
+            <img src="https://images.unsplash.com/photo-1514222134-b57cbb8ce073?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Darjeeling">
+            <div class="destination-info">
+                <h3>Darjeeling</h3>
+                <p>West Bengal</p>
+                <div class="destination-details">
+                    <span><i class="fas fa-clock"></i> Best Time: Mar-May</span>
+                    <span><i class="fas fa-mountain"></i> Famous for: Tea Gardens</span>
+                </div>
+                <a href="/calculator?destination=darjeeling" class="btn-secondary">Plan Visit</a>
+            </div>
+        </div>
+
+        <!-- West India -->
+        <div class="destination-card" data-region="west">
+            <img src="https://images.unsplash.com/photo-1514222134-b57cbb8ce073?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Mumbai">
+            <div class="destination-info">
+                <h3>Mumbai</h3>
+                <p>City of Dreams</p>
+                <div class="destination-details">
+                    <span><i class="fas fa-clock"></i> Best Time: Oct-Feb</span>
+                    <span><i class="fas fa-city"></i> Famous for: Bollywood</span>
+                </div>
+                <a href="/calculator?destination=mumbai" class="btn-secondary">Plan Visit</a>
+            </div>
+        </div>
+
+        <!-- Central India -->
+        <div class="destination-card" data-region="central">
+            <img src="https://images.unsplash.com/photo-1514222134-b57cbb8ce073?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Khajuraho">
+            <div class="destination-info">
+                <h3>Khajuraho</h3>
+                <p>Madhya Pradesh</p>
+                <div class="destination-details">
+                    <span><i class="fas fa-clock"></i> Best Time: Oct-Mar</span>
+                    <span><i class="fas fa-landmark"></i> Famous for: Temples</span>
+                </div>
+                <a href="/calculator?destination=khajuraho" class="btn-secondary">Plan Visit</a>
+            </div>
+        </div>
+
+        <!-- Northeast India -->
+        <div class="destination-card" data-region="northeast">
+            <img src="https://images.unsplash.com/photo-1514222134-b57cbb8ce073?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Kaziranga">
+            <div class="destination-info">
+                <h3>Kaziranga</h3>
+                <p>Assam</p>
+                <div class="destination-details">
+                    <span><i class="fas fa-clock"></i> Best Time: Nov-Apr</span>
+                    <span><i class="fas fa-paw"></i> Famous for: Rhinos</span>
+                </div>
+                <a href="/calculator?destination=kaziranga" class="btn-secondary">Plan Visit</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About Us</h3>
+                <p>Incredible India Travel helps you plan your perfect trip to India with accurate cost estimates and comprehensive travel information.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/calculator">Cost Calculator</a></li>
+                    <li><a href="/destinations">Destinations</a></li>
+                    <li><a href="/profile">Profile</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <p>Email: support@incredibleindiatravel.com</p>
+                <p>Phone: +91 1234567890</p>
+            </div>
+            <div class="footer-section">
+                <h3>Follow Us</h3>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Incredible India Travel. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='destinations.js') }}"></script>
+</body>
+</html> 
