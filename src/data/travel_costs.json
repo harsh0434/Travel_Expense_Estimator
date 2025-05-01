@@ -1,0 +1,74 @@
+{
+    "historical_costs": [
+        {
+            "destination": "ladakh",
+            "region": "north india",
+            "days": 5,
+            "people": 2,
+            "travel_mode": "airways",
+            "budget_level": "mid",
+            "season": "summer",
+            "accommodation_cost": 3000,
+            "food_cost": 1200,
+            "activities_cost": 1000,
+            "transport_cost": 2000,
+            "total_cost_per_person_per_day": 7200
+        },
+        {
+            "destination": "goa",
+            "region": "west india",
+            "days": 4,
+            "people": 3,
+            "travel_mode": "train",
+            "budget_level": "mid",
+            "season": "winter",
+            "accommodation_cost": 2500,
+            "food_cost": 1100,
+            "activities_cost": 900,
+            "transport_cost": 1200,
+            "total_cost_per_person_per_day": 5700
+        },
+        {
+            "destination": "manali",
+            "region": "north india",
+            "days": 6,
+            "people": 4,
+            "travel_mode": "bus",
+            "budget_level": "low",
+            "season": "summer",
+            "accommodation_cost": 1500,
+            "food_cost": 800,
+            "activities_cost": 600,
+            "transport_cost": 800,
+            "total_cost_per_person_per_day": 3700
+        },
+        {
+            "destination": "kerala",
+            "region": "south india",
+            "days": 7,
+            "people": 2,
+            "travel_mode": "airways",
+            "budget_level": "high",
+            "season": "monsoon",
+            "accommodation_cost": 4000,
+            "food_cost": 1500,
+            "activities_cost": 1200,
+            "transport_cost": 2500,
+            "total_cost_per_person_per_day": 9200
+        },
+        {
+            "destination": "rajasthan",
+            "region": "north india",
+            "days": 8,
+            "people": 5,
+            "travel_mode": "train",
+            "budget_level": "mid",
+            "season": "winter",
+            "accommodation_cost": 2800,
+            "food_cost": 1000,
+            "activities_cost": 900,
+            "transport_cost": 1500,
+            "total_cost_per_person_per_day": 6200
+        }
+    ]
+} 
