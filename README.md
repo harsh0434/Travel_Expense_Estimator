@@ -5,7 +5,7 @@ A modern web application that helps travelers estimate their trip costs to vario
 ## 🌟 Features
 
 - **Smart Cost Prediction**: ML-powered travel cost estimation
-- **User Authentication**: Secure Firebase-based authentication
+- **User Authentication**: Secure Firebase-based authentication (frontend) and session management (backend)
 - **Interactive UI**: Modern, responsive design with animations
 - **Detailed Breakdown**: Category-wise cost analysis
 - **Multiple Destinations**: Support for major Indian tourist spots
@@ -16,180 +16,142 @@ A modern web application that helps travelers estimate their trip costs to vario
 travel/
 ├── src/
 │   ├── static/
-│   │   ├── calculator.js    # Calculator functionality
+│   │   ├── calculator.js    # Calculator functionality (frontend logic)
 │   │   ├── home.js         # Home page interactions
-│   │   ├── auth.js         # Authentication handling
-│   │   └── styles.css      # Global styles
+│   │   ├── auth.js         # Authentication handling (Firebase Auth, session)
+│   │   ├── styles.css      # Global styles
+│   │   ├── calculator.css  # Calculator page styles
+│   │   ├── home.css        # Home page styles
+│   │   ├── auth.css        # Auth page styles
+│   │   ├── profile.js      # Profile page logic
+│   │   └── images/         # Static images
 │   ├── templates/
 │   │   ├── home.html       # Home page template
 │   │   ├── calculator.html # Calculator page template
+│   │   ├── profile.html    # Profile page template
 │   │   └── login.html      # Login page template
-│   ├── app.py             # Flask application
-│   └── predict.py         # ML prediction logic
-├── data/
-│   └── travel_costs.json  # Training data
-└── models/
-    ├── travel_cost_model.joblib  # Trained ML model
-    └── encoders.joblib           # Feature encoders
+│   ├── app.py             # Flask application (backend, API, session)
+│   ├── predict.py         # ML prediction logic
+│   ├── travel_calculator.py # Additional backend logic
+│   ├── train_model.py     # Model training script
+│   └── test_app.py        # Backend tests
+├── models/                # Trained ML models (created after training)
+├── data/                  # Training data (created after training)
+├── firebase-adminsdk.json # Firebase Admin SDK credentials (backend auth)
+├── requirements.txt       # Python dependencies
+├── README.md              # Project documentation
+└── ...
 ```
 
 ## 🛠️ Technologies Used
 
 ### Frontend
-- HTML5
-- CSS3 with modern features
+- HTML5, CSS3 (with custom styles for each page)
 - JavaScript (ES6+)
-- Font Awesome icons
-- Google Fonts (Poppins)
-- Unsplash images
+- Firebase Authentication (Email/Password, Google, Phone)
+- Font Awesome, Google Fonts
 
 ### Backend
-- Python Flask
-- scikit-learn
-- NumPy
-- joblib
+- Python Flask (web server, API, session management)
+- scikit-learn, joblib, numpy (ML prediction)
+- firebase-admin (verifies Firebase tokens, manages sessions)
 
 ### Authentication
-- Firebase Authentication
-- Email/Password login
-- Session management
+- **Frontend**: `src/static/auth.js` uses Firebase Auth for login/signup, gets ID token
+- **Backend**: `src/app.py` verifies ID token using Firebase Admin SDK, creates Flask session
+- **Session**: Flask session is used to protect routes and maintain login state
+
+## 🔄 Project Flow
+
+1. **User visits the site**
+   - If not authenticated, redirected to `/login` (handled by Flask and JS)
+2. **Login/Signup**
+   - User logs in via Firebase Auth (frontend, `auth.js`)
+   - On success, frontend gets Firebase ID token and sends it to `/login` (Flask backend)
+   - Flask verifies token with Firebase Admin SDK, creates session
+3. **Session Management**
+   - Flask session stores user ID and email
+   - Protected routes (`/home`, `/calculator`, `/profile`) require session
+   - Logout clears session and signs out from Firebase
+4. **Home Page**
+   - User sees destinations, features, and navigation
+5. **Calculator Page**
+   - User enters trip details
+   - Frontend sends data to `/predict` API (Flask)
+   - Flask uses ML model to predict costs and returns breakdown
+   - Results are displayed interactively
+6. **Profile Page**
+   - User can view/edit profile (future enhancement)
 
 ## 💻 Setup Instructions
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/yourusername/incredible-india-travel.git
-   cd incredible-india-travel
+   git clone <your-repo-url>
+   cd travel
    ```
 
 2. **Create Virtual Environment**
    ```bash
    python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   # On Windows:
+   venv\Scripts\activate
+   # On Mac/Linux:
+   source venv/bin/activate
    ```
 
 3. **Install Dependencies**
    ```bash
    pip install -r requirements.txt
+   pip install firebase-admin
    ```
 
 4. **Set Up Firebase**
    - Create a Firebase project
-   - Enable Email/Password authentication
-   - Add your Firebase config to `static/auth.js`
+   - Enable Email/Password, Google, and Phone authentication
+   - Download your service account key as `firebase-adminsdk.json` and place it in the project root
+   - Add your Firebase config to `src/static/auth.js`
 
-5. **Run the Application**
+5. **Train the Model (Optional)**
+   - Place your training data in `data/`
+   - Run `python src/train_model.py` to generate model files in `models/`
+
+6. **Run the Application**
    ```bash
    cd src
    python app.py
    ```
 
-6. **Access the Application**
+7. **Access the Application**
    - Open http://127.0.0.1:5000 in your browser
 
-## 🔧 Key Components
-
-### Home Page
-- Modern navigation bar with blur effect
-- Full-screen hero section
-- Animated destination cards
-- Feature highlights
-- Call-to-action sections
-
-### Calculator Page
-- Interactive form with validation
-- Real-time cost calculations
-- Animated results display
-- Detailed cost breakdown
-- Category-wise analysis
-
-### Prediction System
-```python
-class TravelCostPredictor:
-    # Base costs for different budget levels
-    base_costs = {
-        'low': {
-            'accommodation': 800,   # Budget hotels/hostels
-            'food': 400,           # Local restaurants
-            'activities': 300,     # Basic sightseeing
-            'transport': {...}     # Various modes
-        },
-        'mid': {...},
-        'high': {...}
-    }
-    
-    # Region-specific multipliers
-    region_multipliers = {
-        'north india': 1.1,
-        'south india': 1.1,
-        'east india': 1.0,
-        'west india': 1.2,
-        'central india': 1.0,
-        'northeast india': 1.2
-    }
-```
-
 ## 🔐 Security Features
+- Firebase Authentication integration (frontend & backend)
+- Protected routes (Flask session)
+- Input validation (frontend & backend)
+- Secure API calls (token verification)
+- Error handling and logging
 
-- Firebase Authentication integration
-- Protected routes
-- Input validation
-- CSRF protection
-- Secure API calls
-- Error handling
+## 📁 Where Each Technology is Used
+- **Flask**: `src/app.py` (routes, API, session), `src/predict.py` (ML logic)
+- **Firebase Auth**: `src/static/auth.js` (login/signup, token), `src/app.py` (token verification)
+- **ML Model**: `src/predict.py`, `models/` (trained model files)
+- **Frontend**: `src/static/` (JS, CSS), `src/templates/` (HTML)
 
-## 📱 Responsive Design
+## 🚦 How Authentication Works
+- User logs in via Firebase Auth (frontend)
+- JS gets ID token and sends to Flask `/login`
+- Flask verifies token with Firebase Admin SDK
+- On success, Flask creates session and user can access protected pages
+- Logout clears both Firebase and Flask session
 
-- Mobile-first approach
-- Flexible grid systems
-- Adaptive layouts
-- Touch-friendly interactions
-- Responsive typography
-
-## ⚡ Performance Optimizations
-
-- Lazy loading for images
-- Minified resources
-- Efficient animations
-- Cached predictions
-- Optimized API calls
-
-## 🔄 User Flow
-
-1. User Authentication
-   - Login/Signup via Firebase
-   - Email verification (optional)
-
-2. Home Page Navigation
-   - Browse destinations
-   - View features
-   - Access calculator
-
-3. Cost Calculation
-   - Input travel details
-   - Select preferences
-   - View cost breakdown
-   - Modify inputs as needed
-
-## 💰 Cost Calculation Process
-
-1. **Base Cost Selection**
-   - Budget-friendly options
-   - Moderate comfort level
-   - Luxury experience
-
-2. **Multiplier Application**
-   - Region-specific adjustments
-   - Destination factors
-   - Seasonal variations
-
-3. **Final Calculations**
-   - Per person per day costs
-   - Total trip cost
-   - Category-wise breakdown
+## 💡 How Prediction Works
+- User fills calculator form
+- Frontend sends data to `/predict` (Flask)
+- Flask loads ML model, predicts costs, returns JSON
+- Frontend displays results
 
 ## 🚀 Future Enhancements
-
 - [ ] Additional destinations
 - [ ] More travel modes
 - [ ] Seasonal pricing
@@ -198,16 +160,10 @@ class TravelCostPredictor:
 - [ ] Trip planning features
 
 ## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a pull request
+Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
 
 ## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+[MIT](LICENSE)
 
 ## 👥 Authors
 
