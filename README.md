@@ -178,4 +178,4 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 
 ## 📞 Support
 
-For support, email your@email.com or create an issue in the repository. 
+For support, email your@email.com or create an issue in the repository.
