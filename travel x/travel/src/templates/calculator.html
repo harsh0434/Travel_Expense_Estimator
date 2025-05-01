@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Cost Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="{{ url_for('static', filename='auth.js') }}"></script>
+    <script src="{{ url_for('static', filename='calculator.js') }}"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1rem 2rem;
+            background: #1a237e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-link:hover {
+            opacity: 0.8;
+        }
+
+        .user-welcome {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        #userEmail {
+            color: white;
+            font-weight: 500;
+        }
+
+        #logoutBtn {
+            padding: 0.5rem 1.5rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.5);
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #logoutBtn:hover {
+            background: white;
+            color: #1a237e;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 8rem 2rem 4rem;
+        }
+
+        .calculator-section {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            color: #1a237e;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+
+        .section-subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            color: #1a237e;
+            font-weight: 500;
+        }
+
+        .form-control {
+            padding: 0.8rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #1a237e;
+        }
+
+        select.form-control {
+            cursor: pointer;
+            background: white;
+        }
+
+        .calculate-btn {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background: #1a237e;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calculate-btn:hover {
+            background: #283593;
+            transform: translateY(-2px);
+        }
+
+        .results-section {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .result-card {
+            text-align: center;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .result-icon {
+            font-size: 2rem;
+            color: #1a237e;
+            margin-bottom: 1rem;
+        }
+
+        .result-value {
+            font-size: 1.5rem;
+            color: #1a237e;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .total-section {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .total-cost {
+            font-size: 2.5rem;
+            color: #1a237e;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .total-label {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results-section.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/home" class="logo">Incredible India</a>
+        <div class="nav-links">
+            <a href="/home" class="nav-link">Home</a>
+            <a href="/calculator" class="nav-link">Calculator</a>
+            <a href="/profile" class="nav-link">Profile</a>
+        </div>
+        <div class="user-welcome">
+            <span id="userEmail"></span>
+            <button id="logoutBtn">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="calculator-section">
+            <h1 class="section-title">Travel Expense Calculator</h1>
+            <p class="section-subtitle">Plan your perfect Indian adventure with our smart cost estimator</p>
+            
+            <form id="calculatorForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="destination">Destination</label>
+                        <select id="destination" class="form-control" required>
+                            <option value="">Select Destination</option>
+                            <option value="mumbai">Mumbai</option>
+                            <option value="delhi">Delhi</option>
+                            <option value="bangalore">Bangalore</option>
+                            <option value="goa">Goa</option>
+                            <option value="jaipur">Jaipur</option>
+                            <option value="agra">Agra</option>
+                            <option value="varanasi">Varanasi</option>
+                            <option value="kerala">Kerala</option>
+                            <option value="ladakh">Ladakh</option>
+                            <option value="manali">Manali</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="days">Number of Days</label>
+                        <input type="number" id="days" class="form-control" min="1" max="30" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="people">Number of People</label>
+                        <input type="number" id="people" class="form-control" min="1" max="10" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="travelMode">Mode of Travel</label>
+                        <select id="travelMode" class="form-control" required>
+                            <option value="">Select Travel Mode</option>
+                            <option value="airways">Airways</option>
+                            <option value="train">Train</option>
+                            <option value="bus">Bus</option>
+                            <option value="car">Car</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="budgetLevel">Budget Level</label>
+                        <select id="budgetLevel" class="form-control" required>
+                            <option value="">Select Budget Level</option>
+                            <option value="low">Budget</option>
+                            <option value="mid">Moderate</option>
+                            <option value="high">Luxury</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="submit" class="calculate-btn">Calculate Cost</button>
+            </form>
+        </section>
+
+        <section id="resultsSection" class="results-section">
+            <h2 class="section-title">Estimated Travel Cost</h2>
+            <p class="section-subtitle">Based on your selections, here's a detailed breakdown of expected costs</p>
+            
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-icon">
+                        <i class="fas fa-bed"></i>
+                    </div>
+                    <div class="result-value" id="accommodationCost">₹0</div>
+                    <div class="result-label">Accommodation</div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="result-value" id="foodCost">₹0</div>
+                    <div class="result-label">Food</div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-icon">
+                        <i class="fas fa-hiking"></i>
+                    </div>
+                    <div class="result-value" id="activitiesCost">₹0</div>
+                    <div class="result-label">Activities</div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-icon">
+                        <i class="fas fa-route"></i>
+                    </div>
+                    <div class="result-value" id="transportCost">₹0</div>
+                    <div class="result-label">Transport</div>
+                </div>
+            </div>
+
+            <div class="total-section">
+                <div class="total-cost" id="totalCost">₹0</div>
+                <div class="total-label">Total Cost for <span id="tripSummary">0 people for 0 days</span></div>
+            </div>
+        </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='calculator.js') }}"></script>
+</body>
+</html> 
