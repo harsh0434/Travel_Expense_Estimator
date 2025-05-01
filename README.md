@@ -167,7 +167,7 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 
 ## 👥 Authors
 
-- Your Name - Initial work - [YourGitHub](https://github.com/yourusername)
+- Your Name - Initial work - [YourGitHub](https://github.com/harsh0434/TravelMint.git)
 
 ## 🙏 Acknowledgments
 

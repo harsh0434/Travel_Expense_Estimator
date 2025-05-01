@@ -47,15 +47,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (path === '/login') {
             if (user) {
                 console.log('User is logged in, redirecting to home');
-                window.location.href = '/home';
+                setTimeout(() => {
+                    window.location.href = '/home';
+                }, 100);
             }
         } else if (["/home", "/calculator", "/profile"].includes(path)) {
             if (!user) {
                 console.log('User is not logged in on protected page');
-                const mainContent = document.getElementById('main-content');
-                if (mainContent) {
-                    mainContent.innerHTML = '<div style="color:#c62828; font-size:1.2rem; text-align:center; margin-top:2rem;">You must be logged in to view this page.</div>';
-                }
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 100);
             }
         }
     });
@@ -163,13 +164,46 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
                 
+                // Get the ID token
+                const idToken = await userCredential.user.getIdToken();
+                
+                // Send the token to the server to create a session
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ idToken }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to create session');
+                }
+                
                 showSuccess('Login successful! Redirecting...');
                 setTimeout(() => {
                     window.location.href = '/home';
                 }, 1500);
             } catch (error) {
                 console.error('Login error:', error);
-                showError(error.message);
+                let errorMessage = 'An error occurred during login.';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage = 'No account found with this email.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = 'Incorrect password.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address.';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage = 'This account has been disabled.';
+                        break;
+                }
+                
+                showError(errorMessage);
             }
         });
     }
@@ -244,9 +278,12 @@ document.addEventListener('DOMContentLoaded', function() {
     async function logout() {
         try {
             await auth.signOut();
+            // Call the server's logout endpoint
+            await fetch('/logout');
             window.location.href = '/login';
         } catch (error) {
-            throw error;
+            console.error('Logout error:', error);
+            showError('An error occurred during logout.');
         }
     }
 

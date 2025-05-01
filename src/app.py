@@ -3,37 +3,113 @@ from predict import load_trained_model
 import os
 import logging
 from datetime import timedelta
+from functools import wraps
+import firebase_admin
+from firebase_admin import credentials, auth
+import json
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = os.urandom(24)  # Required for session
 app.permanent_session_lifetime = timedelta(days=7)  # Session lasts 7 days
 
+# Initialize Firebase Admin with the service account
+try:
+    cred = credentials.Certificate('firebase-adminsdk.json')
+    firebase_admin.initialize_app(cred)
+    logging.info('Firebase Admin SDK initialized successfully')
+except Exception as e:
+    logging.error(f'Failed to initialize Firebase Admin SDK: {str(e)}')
+    raise
+
 # Set up logging
 logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s %(levelname)s: %(message)s')
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Check if user is authenticated via session
+        if 'user_id' not in session:
+            logging.info('User not authenticated, redirecting to login')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route('/')
 def index():
     return redirect(url_for('login'))
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        try:
+            # Get the ID token from the request
+            data = request.get_json()
+            if not data or 'idToken' not in data:
+                logging.error('No ID token provided in request')
+                return jsonify({'error': 'No ID token provided'}), 400
+
+            id_token = data['idToken']
+            
+            # Verify the ID token
+            try:
+                decoded_token = auth.verify_id_token(id_token)
+                user_id = decoded_token['uid']
+                email = decoded_token.get('email', '')
+                
+                # Create a session
+                session['user_id'] = user_id
+                session['email'] = email
+                session.permanent = True
+                
+                logging.info(f'User {email} ({user_id}) logged in successfully')
+                return jsonify({'success': True}), 200
+                
+            except auth.InvalidIdTokenError:
+                logging.error('Invalid ID token provided')
+                return jsonify({'error': 'Invalid token'}), 401
+            except auth.ExpiredIdTokenError:
+                logging.error('Expired ID token provided')
+                return jsonify({'error': 'Token expired'}), 401
+            except auth.RevokedIdTokenError:
+                logging.error('Revoked ID token provided')
+                return jsonify({'error': 'Token revoked'}), 401
+                
+        except Exception as e:
+            logging.error(f"Login error: {str(e)}")
+            return jsonify({'error': 'Authentication failed'}), 401
+
+    # GET request - show login page
     logging.info('Login page accessed')
+    # If user is already logged in, redirect to home
+    if 'user_id' in session:
+        logging.info(f'User {session.get("email", "unknown")} already logged in, redirecting to home')
+        return redirect(url_for('home'))
     return render_template('login.html')
 
 @app.route('/home')
+@login_required
 def home():
-    logging.info('Home page accessed')
+    logging.info(f'Home page accessed by user {session.get("email", "unknown")}')
     return render_template('home.html')
 
 @app.route('/calculator')
+@login_required
 def calculator():
-    logging.info('Calculator page accessed')
+    logging.info(f'Calculator page accessed by user {session.get("email", "unknown")}')
     return render_template('calculator.html')
 
 @app.route('/profile')
+@login_required
 def profile():
-    logging.info('Profile page accessed')
+    logging.info(f'Profile page accessed by user {session.get("email", "unknown")}')
     return render_template('profile.html')
+
+@app.route('/logout')
+def logout():
+    user_email = session.get('email', 'unknown')
+    session.clear()
+    logging.info(f'User {user_email} logged out')
+    return redirect(url_for('login'))
 
 @app.route('/predict', methods=['POST'])
 def predict():
