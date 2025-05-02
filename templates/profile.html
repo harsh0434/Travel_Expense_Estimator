@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - TravelMint</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo">TravelMint</div>
+        <div class="nav-buttons">
+            <button onclick="window.location.href='/calculator'" class="nav-btn">Calculate</button>
+            <button onclick="window.location.href='/profile'" class="nav-btn">Profile</button>
+            <button onclick="window.location.href='/history'" class="nav-btn">History</button>
+            <button id="logoutBtn" class="nav-btn logout">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Profile Section -->
+    <div class="profile-section">
+        <div class="profile-container">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <img id="userAvatar" src="https://via.placeholder.com/150" alt="Profile Picture">
+                </div>
+                <h1 id="userName">Loading...</h1>
+                <p id="userEmail" class="user-email">Loading...</p>
+            </div>
+            
+            <div class="profile-details">
+                <div class="detail-card">
+                    <h3>Account Information</h3>
+                    <div class="detail-item">
+                        <span class="label">Nickname:</span>
+                        <span id="userNickname">Loading...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Member Since:</span>
+                        <span id="memberSince">Loading...</span>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <h3>Travel Statistics</h3>
+                    <div class="detail-item">
+                        <span class="label">Total Trips:</span>
+                        <span id="totalTrips">0</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Total Expenses:</span>
+                        <span id="totalExpenses">$0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="{{ url_for('static', filename='profile.js') }}"></script>
+</body>
+</html> 

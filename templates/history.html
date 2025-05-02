@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel History - TravelMint</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo">TravelMint</div>
+        <div class="nav-buttons">
+            <button onclick="window.location.href='/calculator'" class="nav-btn">Calculate</button>
+            <button onclick="window.location.href='/profile'" class="nav-btn">Profile</button>
+            <button onclick="window.location.href='/history'" class="nav-btn">History</button>
+            <button id="logoutBtn" class="nav-btn logout">Logout</button>
+        </div>
+    </nav>
+
+    <!-- History Section -->
+    <div class="history-section">
+        <div class="history-container">
+            <h1>Your Travel History</h1>
+            <div class="history-filters">
+                <select id="sortBy" class="filter-select">
+                    <option value="date-desc">Most Recent</option>
+                    <option value="date-asc">Oldest First</option>
+                    <option value="cost-desc">Highest Cost</option>
+                    <option value="cost-asc">Lowest Cost</option>
+                </select>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search destinations...">
+            </div>
+            <div id="historyList" class="history-list">
+                <!-- History items will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="{{ url_for('static', filename='history.js') }}"></script>
+</body>
+</html> 

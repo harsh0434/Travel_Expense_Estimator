@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Travel Cost Calculator</h2>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Enter Travel Details</h5>
+                    <form id="calculatorForm">
+                        <div class="mb-3">
+                            <label for="destination" class="form-label">Destination</label>
+                            <select class="form-select" id="destination" name="destination" required>
+                                <option value="">Select Destination</option>
+                                {% for destination in destinations %}
+                                <option value="{{ destination }}">{{ destination.title() }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="days" class="form-label">Number of Days</label>
+                            <input type="number" class="form-control" id="days" name="days" min="1" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="people" class="form-label">Number of People</label>
+                            <input type="number" class="form-control" id="people" name="people" min="1" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="travel_mode" class="form-label">Travel Mode</label>
+                            <select class="form-select" id="travel_mode" name="travel_mode" required>
+                                <option value="">Select Travel Mode</option>
+                                <option value="car">Car</option>
+                                <option value="bus">Bus</option>
+                                <option value="train">Train</option>
+                                <option value="flight">Flight</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="budget_level" class="form-label">Budget Level</label>
+                            <select class="form-select" id="budget_level" name="budget_level" required>
+                                <option value="">Select Budget Level</option>
+                                <option value="low">Low</option>
+                                <option value="mid">Mid</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Calculate Cost</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Cost Breakdown</h5>
+                    <div id="results" style="display: none;">
+                        <div class="mb-3">
+                            <h6>Total Trip Cost: <span id="totalCost" class="text-primary"></span></h6>
+                            <h6>Per Person Per Day: <span id="perPersonCost" class="text-primary"></span></h6>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6>Cost Breakdown:</h6>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Accommodation
+                                    <span id="accommodationCost" class="badge bg-primary rounded-pill"></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Food
+                                    <span id="foodCost" class="badge bg-primary rounded-pill"></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Activities
+                                    <span id="activitiesCost" class="badge bg-primary rounded-pill"></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Transport
+                                    <span id="transportCost" class="badge bg-primary rounded-pill"></span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6>Tourist Attractions:</h6>
+                            <ul id="attractions" class="list-group"></ul>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6>Local Food:</h6>
+                            <ul id="localFood" class="list-group"></ul>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6>Best Time to Visit:</h6>
+                            <p id="bestTime" class="text-muted"></p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6>Weather Information:</h6>
+                            <p id="weatherInfo" class="text-muted"></p>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <small>Confidence Score: <span id="confidenceScore"></span></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('calculatorForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        destination: document.getElementById('destination').value,
+        days: document.getElementById('days').value,
+        people: document.getElementById('people').value,
+        travel_mode: document.getElementById('travel_mode').value,
+        budget_level: document.getElementById('budget_level').value
+    };
+    
+    try {
+        const response = await fetch('/calculate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            document.getElementById('results').style.display = 'block';
+            
+            // Update cost information
+            document.getElementById('totalCost').textContent = formatCurrency(result.total_trip_cost);
+            document.getElementById('perPersonCost').textContent = formatCurrency(result.per_person_per_day);
+            document.getElementById('accommodationCost').textContent = formatCurrency(result.cost_breakdown.accommodation_cost);
+            document.getElementById('foodCost').textContent = formatCurrency(result.cost_breakdown.food_cost);
+            document.getElementById('activitiesCost').textContent = formatCurrency(result.cost_breakdown.activities_cost);
+            document.getElementById('transportCost').textContent = formatCurrency(result.cost_breakdown.transport_cost);
+            
+            // Update attractions
+            const attractionsList = document.getElementById('attractions');
+            attractionsList.innerHTML = '';
+            result.destination_info.tourist_attractions.forEach(attraction => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
+                li.textContent = attraction;
+                attractionsList.appendChild(li);
+            });
+            
+            // Update local food
+            const foodList = document.getElementById('localFood');
+            foodList.innerHTML = '';
+            result.destination_info.local_food.forEach(food => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
+                li.textContent = food;
+                foodList.appendChild(li);
+            });
+            
+            // Update other information
+            document.getElementById('bestTime').textContent = result.destination_info.best_time;
+            document.getElementById('weatherInfo').textContent = 
+                `Temperature: ${result.destination_info.weather.temperature}°C, ` +
+                `Humidity: ${result.destination_info.weather.humidity}%, ` +
+                `Rainfall: ${result.destination_info.weather.rainfall ? 'Yes' : 'No'}`;
+            
+            document.getElementById('confidenceScore').textContent = 
+                `${(result.confidence * 100).toFixed(1)}%`;
+        } else {
+            alert('Error: ' + result.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while calculating the cost.');
+    }
+});
+
+function formatCurrency(amount) {
+    if (amount >= 10000000) { // 1 crore
+        return `₹${(amount/10000000).toFixed(2)} Cr`;
+    } else if (amount >= 100000) { // 1 lakh
+        return `₹${(amount/100000).toFixed(2)} L`;
+    } else {
+        return `₹${amount.toLocaleString('en-IN')}`;
+    }
+}
+</script>
+{% endblock %} 
