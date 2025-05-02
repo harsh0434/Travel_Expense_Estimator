@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section text-center py-5">
+    <h1 class="display-4 mb-4">AI-Powered Travel Expense Estimator</h1>
+    <p class="lead mb-4">Plan your trips with confidence using our advanced AI technology to estimate travel costs accurately.</p>
+    {% if not current_user.is_authenticated %}
+        <div class="d-grid gap-2 d-md-flex justify-content-center">
+            <a href="{{ url_for('signup') }}" class="btn btn-primary btn-lg px-4 me-md-2">Get Started</a>
+            <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg px-4">Login</a>
+        </div>
+    {% else %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg px-4">Go to Dashboard</a>
+    {% endif %}
+</div>
+
+<div class="features-section py-5">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="feature-card text-center p-4">
+                <i class="fas fa-robot fa-3x mb-3"></i>
+                <h3>AI-Powered Predictions</h3>
+                <p>Advanced machine learning algorithms analyze historical data to provide accurate cost estimates.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card text-center p-4">
+                <i class="fas fa-chart-line fa-3x mb-3"></i>
+                <h3>Smart Analytics</h3>
+                <p>Get detailed breakdowns of travel costs and personalized recommendations.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card text-center p-4">
+                <i class="fas fa-history fa-3x mb-3"></i>
+                <h3>Travel History</h3>
+                <p>Track your past trips and compare estimated vs. actual costs.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="how-it-works py-5">
+    <h2 class="text-center mb-4">How It Works</h2>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="step-card text-center">
+                <div class="step-number">1</div>
+                <h4>Sign Up</h4>
+                <p>Create your account with email and phone verification.</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="step-card text-center">
+                <div class="step-number">2</div>
+                <h4>Enter Details</h4>
+                <p>Input your travel destination and preferences.</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="step-card text-center">
+                <div class="step-number">3</div>
+                <h4>Get Estimate</h4>
+                <p>Receive AI-generated cost estimates for your trip.</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="step-card text-center">
+                <div class="step-number">4</div>
+                <h4>Track & Compare</h4>
+                <p>Monitor actual costs and compare with estimates.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://kit.fontawesome.com/your-font-awesome-kit.js"></script>
+{% endblock %} 
